@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cricket Scorecard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #ffffff;
+            font-family: 'Poppins', sans-serif;
+        }
+        .score-container {
+            background: #002244;
+            padding: 15px;
+            border-radius: 10px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        .tournament-title {
+            text-align: center;
+            font-size: 24px;
+            color: #FFD700;
+        }
+        .match-number {
+            text-align: center;
+            font-size: 16px;
+            color: #00FF00;
+            margin: 10px 0;
+        }
+        .teams {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+        }
+        .team {
+            text-align: center;
+            padding: 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 5px;
+            flex: 1;
+            margin: 0 5px;
+        }
+        .team-name {
+            font-size: 20px;
+            color: #FFD700;
+        }
+        .score {
+            font-size: 30px;
+            color: #00FF00;
+        }
+        .batsmen, .bowler {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .batsmen {
+            background: #003366;
+        }
+        .bowler {
+            background: #660000;
+        }
+        .batsmen-title, .bowler-title {
+            font-size: 14px;
+            color: #FFD700;
+        }
+        .batsman-info {
+            display: flex;
+            gap: 10px;
+        }
+        .batsman {
+            flex: 1;
+            text-align: center;
+        }
+        .batsman-name {
+            font-size: 16px;
+        }
+        .batsman-score {
+            font-size: 18px;
+            color: #00FF00;
+        }
+        .bowler-info {
+            font-size: 16px;
+        }
+        .bowler-name {
+            color: #FFFFFF;
+        }
+        .bowler-stats {
+            color: #FF3333;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        .stat-item {
+            text-align: center;
+            padding: 5px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 5px;
+            flex: 1;
+            margin: 0 5px;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #BBBBBB;
+        }
+        .stat-value {
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="score-container">
+        <div class="tournament-title">TATA IPL 2025</div>
+        <div class="match-number">MATCH NUMBER 4</div>
+        <div class="teams">
+            <div class="team">
+                <div class="team-name">DC</div>
+                <div class="score" id="dc-score">328-6</div>
+            </div>
+            <div class="team">
+                <div class="team-name">LSG</div>
+                <div class="score" id="lsg-score">112-2 (20)</div>
+            </div>
+        </div>
+        <div class="batsmen">
+            <div class="batsmen-title">Current Batsmen</div>
+            <div class="batsman-info">
+                <div class="batsman">
+                    <div class="batsman-name" id="batsman1-name">Kohli</div>
+                    <div class="batsman-score" id="batsman1-score">85* (62)</div>
+                </div>
+                <div class="batsman">
+                    <div class="batsman-name" id="batsman2-name">Rohit</div>
+                    <div class="batsman-score" id="batsman2-score">42 (38)</div>
+                </div>
+            </div>
+        </div>
+        <div class="bowler">
+            <div class="bowler-title">Current Bowler</div>
+            <div class="bowler-info">
+                <span class="bowler-name" id="bowler-name">Starc</span>
+                <span class="bowler-stats" id="bowler-stats">4-0-28-1</span>
+            </div>
+        </div>
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-label">CRR</div>
+                <div class="stat-value" id="crr">8.45</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">RRR</div>
+                <div class="stat-value" id="rrr">10.75</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">OVERS</div>
+                <div class="stat-value" id="overs">34.2</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js"></script>
+
+    <script>
+        // Paste your Firebase config here (from Step 1)
+        const firebaseConfig = {
+            apiKey: "your-api-key",
+            authDomain: "cricketlivescore.firebaseapp.com",
+            databaseURL: "https://cricketlivescore-default-rtdb.firebaseio.com",
+            projectId: "cricketlivescore",
+            storageBucket: "cricketlivescore.appspot.com",
+            messagingSenderId: "your-sender-id",
+            appId: "your-app-id"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const matchRef = database.ref('matchData');
+
+        // Update the scorecard with data
+        function updateScorecard(data) {
+            document.getElementById("dc-score").textContent = data.dcScore;
+            document.getElementById("lsg-score").textContent = data.lsgScore;
+            document.getElementById("batsman1-name").textContent = data.batsman1.name;
+            document.getElementById("batsman1-score").textContent = data.batsman1.score;
+            document.getElementById("batsman2-name").textContent = data.batsman2.name;
+            document.getElementById("batsman2-score").textContent = data.batsman2.score;
+            document.getElementById("bowler-name").textContent = data.bowler.name;
+            document.getElementById("bowler-stats").textContent = data.bowler.stats;
+            document.getElementById("crr").textContent = data.crr;
+            document.getElementById("rrr").textContent = data.rrr;
+            document.getElementById("overs").textContent = data.overs;
+        }
+
+        // Listen for changes from Firebase
+        matchRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                updateScorecard(data);
+            }
+        });
+    </script>
+</body>
+</html>
